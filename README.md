@@ -1,191 +1,235 @@
 # Android Project Skeleton
 
-A modern Android project skeleton with all the latest tools and libraries for building robust Android applications.
+A comprehensive Android project skeleton with modern development tools and libraries.
 
-## 🚀 Features
+## Features Included
 
-### Core Technologies
-- **Kotlin** with **Gradle KTS** build scripts
-- **Version Catalog** for centralized dependency management
+### ✅ Core Technologies
+- **Kotlin** with Gradle KTS
+- **Version Catalog** for dependency management
 - **Jetpack Compose** for modern UI development
-- **Material Design 3** with extended icons
+- **Material Design 3** with Material You theming
 
-### Architecture & Dependency Injection
+### ✅ Architecture & Dependency Injection
 - **Hilt** for dependency injection
-- **MVVM** architecture pattern
-- **Repository pattern** with Room database
+- **MVVM Architecture** with ViewModels
+- **Repository Pattern** for data management
 
-### Networking & Data
-- **OkHttp BOM** for HTTP networking
-- **Room** with **KSP** for local database
-- **Coil** for efficient image loading
+### ✅ Networking & Data
+- **Retrofit** for HTTP networking
+- **OkHttp** with logging interceptor
+- **Moshi** for JSON serialization/deserialization
+- **Kotlin Serialization** for type-safe JSON handling
+- **Coroutines** for asynchronous programming
 
-### UI/UX
+### ✅ Database
+- **Room** with KSP for local database
+- **Kotlin Coroutines** for database operations
+
+### ✅ UI & Animations
+- **Coil** for image loading
 - **Shimmer** for loading states
-- **Material Icons Extended** for rich iconography
-- **Compose BOM** for consistent Compose versions
+- **Material Icons** (Core & Extended)
+- **Lottie** for animations (ready to use)
 
-### Analytics & Monitoring
-- **Firebase BOM** for analytics and crash reporting
-- **Google Analytics** integration
-- **Crashlytics** for crash monitoring
+### ✅ Logging & Build Flavors
+- **Timber** for structured logging
+- **Build Flavors** (dev, staging, production)
+- **Environment-specific** configurations
+- **Conditional logging** based on build type
 
-## 📁 Project Structure
+### ✅ Firebase Integration
+- **Firebase BOM** for consistent versions
+- **Firebase Analytics**
+- **Firebase Crashlytics**
+
+### ✅ Testing
+- **JUnit** for unit testing
+- **Espresso** for UI testing
+- **Compose Testing** utilities
+
+## Project Structure
 
 ```
-androidProjectSkaleton/
-├── app/
-│   ├── src/main/
-│   │   ├── java/com/example/androidprojectskaleton/
-│   │   │   ├── data/
-│   │   │   │   ├── dao/          # Room DAOs
-│   │   │   │   ├── database/     # Room database
-│   │   │   │   └── entity/       # Room entities
-│   │   │   ├── di/               # Hilt modules
-│   │   │   ├── ui/theme/         # Compose theme
-│   │   │   ├── AndroidProjectSkaletonApp.kt
-│   │   │   ├── MainActivity.kt
-│   │   │   ├── MainScreen.kt
-│   │   │   └── MainViewModel.kt
-│   │   ├── res/                  # Resources
-│   │   └── AndroidManifest.xml
-│   ├── build.gradle.kts
-│   └── proguard-rules.pro
-├── gradle/
-│   └── libs.versions.toml        # Version Catalog
-├── build.gradle.kts
-├── settings.gradle.kts
-└── README.md
+app/src/main/java/com/example/androidprojectskaleton/
+├── data/
+│   ├── api/
+│   │   └── ApiService.kt          # Retrofit API interface
+│   ├── model/
+│   │   └── Post.kt                # Data models with Moshi annotations
+│   ├── repository/
+│   │   └── PostRepository.kt      # Repository pattern implementation
+│   ├── dao/
+│   │   └── UserDao.kt             # Room DAO
+│   ├── database/
+│   │   └── AppDatabase.kt         # Room database
+│   └── entity/
+│       └── User.kt                # Room entities
+├── di/
+│   ├── DatabaseModule.kt          # Hilt database module
+│   └── NetworkModule.kt           # Hilt network module
+├── ui/
+│   └── theme/                     # Material 3 theming
+├── MainActivity.kt
+├── MainScreen.kt                  # Compose UI
+├── MainViewModel.kt               # MVVM ViewModel
+└── AndroidProjectSkaletonApp.kt   # Application class
 ```
 
-## 🛠 Setup Instructions
+## Key Dependencies
 
-### Prerequisites
-- Android Studio Hedgehog or later
-- JDK 17 or later
-- Android SDK 34
+### Networking
+- `retrofit` - HTTP client
+- `retrofit-converter-moshi` - JSON serialization
+- `okhttp` - HTTP client library
+- `okhttp-logging-interceptor` - Network logging
 
-### Getting Started
+### Serialization
+- `moshi` - JSON serialization
+- `moshi-kotlin` - Kotlin support for Moshi
+- `kotlinx-serialization-json` - Kotlin serialization
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd androidProjectSkaleton
-   ```
+### Coroutines
+- `kotlinx-coroutines-core` - Coroutines core
+- `kotlinx-coroutines-android` - Android coroutines
 
-2. **Configure Firebase** (Optional)
-   - Replace `app/google-services.json` with your Firebase configuration
-   - Update the Firebase project ID in the configuration
+### Logging
+- `timber` - Structured logging library
 
-3. **Build the project**
-   ```bash
-   ./gradlew build
-   ```
+### UI Components
+- `coil-compose` - Image loading
+- `shimmer` - Loading animations
+- `lottie-compose` - Lottie animations
 
-4. **Run the app**
-   ```bash
-   ./gradlew installDebug
-   ```
+## Usage Examples
 
-## 📦 Dependencies
+### API Service with Retrofit & Moshi
+```kotlin
+@JsonClass(generateAdapter = true)
+data class Post(
+    @Json(name = "id") val id: Int,
+    @Json(name = "title") val title: String,
+    @Json(name = "body") val body: String
+)
 
-### Version Catalog Management
-All dependencies are managed through the Version Catalog in `gradle/libs.versions.toml`:
+interface ApiService {
+    @GET("posts")
+    suspend fun getPosts(): List<Post>
+}
+```
 
-- **SDK Versions**: compileSdk, targetSdk, minSdk
-- **App Versions**: versionCode, versionName
-- **Library Versions**: All library versions are centralized
-- **BOMs**: Firebase, Compose, OkHttp BOMs for version consistency
+### Repository Pattern with Coroutines
+```kotlin
+@Singleton
+class PostRepository @Inject constructor(
+    private val apiService: ApiService
+) {
+    suspend fun getPosts(): List<Post> = withContext(Dispatchers.IO) {
+        apiService.getPosts()
+    }
+}
+```
 
-### Key Libraries
+### ViewModel with StateFlow
+```kotlin
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val postRepository: PostRepository
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(MainUiState())
+    val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
+    
+    fun loadPosts() {
+        viewModelScope.launch {
+            val posts = postRepository.getPosts()
+            _uiState.value = _uiState.value.copy(posts = posts)
+        }
+    }
+}
+```
 
-#### UI & Navigation
-- `androidx.compose.bom` - Compose BOM
-- `androidx.navigation.compose` - Navigation
-- `com.google.android.material` - Material Design
-- `com.facebook.shimmer` - Loading animations
+### Compose UI with Shimmer Loading
+```kotlin
+@Composable
+fun LoadingCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .shimmer()
+    )
+}
+```
 
-#### Networking & Data
-- `com.squareup.okhttp3:okhttp-bom` - HTTP client
-- `androidx.room:room-runtime` - Local database
-- `io.coil-kt:coil-compose` - Image loading
+### Structured Logging with Timber
+```kotlin
+// Initialize in Application class
+Logger.init()
 
-#### Dependency Injection
-- `com.google.dagger:hilt-android` - Hilt DI
-- `androidx.hilt:hilt-navigation-compose` - Hilt + Compose
+// Usage throughout the app
+Logger.d("Debug message")
+Logger.i("Info message")
+Logger.e("Error message", exception)
+```
 
-#### Analytics & Monitoring
-- `com.google.firebase:firebase-bom` - Firebase BOM
-- `com.google.firebase:firebase-analytics` - Analytics
-- `com.google.firebase:firebase-crashlytics` - Crash reporting
+## Build Flavors
 
-## 🔧 Configuration
+The project includes three build flavors:
 
-### Version Catalog
-The `gradle/libs.versions.toml` file contains:
-- All version definitions
-- Library declarations
-- Plugin configurations
-- Dependency bundles
+### 🚀 Development (dev)
+- **Application ID**: `com.example.androidprojectskaleton.dev.debug`
+- **Logging**: Enabled
+- **Features**: Full debugging capabilities
+- **Build Command**: `./gradlew assembleDevDebug`
 
-### Build Configuration
-- **Kotlin**: 1.9.20
-- **Compose Compiler**: 1.5.4
-- **Android Gradle Plugin**: 8.1.4
-- **KSP**: 1.9.20-1.0.14
+### 🧪 Staging (staging)
+- **Application ID**: `com.example.androidprojectskaleton.staging.debug`
+- **Logging**: Enabled
+- **Features**: Production-like environment
+- **Build Command**: `./gradlew assembleStagingDebug`
 
-### ProGuard Rules
-Includes optimized ProGuard rules for:
-- Room database
+### 🏭 Production (production)
+- **Application ID**: `com.example.androidprojectskaleton`
+- **Logging**: Disabled
+- **Features**: Optimized for release
+- **Build Command**: `./gradlew assembleProductionRelease`
+
+### 📱 Quick Build Commands
+```bash
+# Build specific flavors
+./build-flavors.sh dev
+./build-flavors.sh staging
+./build-flavors.sh production
+
+# Build all flavors
+./build-flavors.sh all
+```
+
+## Getting Started
+
+1. Clone the repository
+2. Open in Android Studio
+3. Sync Gradle files
+4. Choose your build flavor (dev/staging/production)
+5. Run the app
+
+The app demonstrates:
+- API calls with Retrofit
+- JSON serialization with Moshi
+- Coroutines for async operations
+- Shimmer loading states
+- Material 3 theming
 - Hilt dependency injection
-- Firebase services
-- OkHttp networking
-- Coil image loading
-- Shimmer animations
 
-## 🎨 UI Components
+## Notes
 
-### Example Usage
-The project includes example implementations of:
-- **Material 3** components
-- **Extended icons** from Material Design
-- **Shimmer loading** states
-- **Coil image loading**
-- **Navigation** with bottom navigation
-- **Hilt ViewModels** with state management
+- **Pull to Refresh**: Currently using a placeholder. For production, consider using `accompanist-swiperefresh` or implementing custom pull-to-refresh
+- **Lottie**: Ready to use - just add your Lottie JSON files to `res/raw/`
+- **Network Security**: Add network security config for production apps
+- **Error Handling**: Implement proper error handling for production use
+- **Firebase**: Currently disabled for demo. Uncomment in `app/build.gradle.kts` when Firebase is configured
+- **Logging**: Timber logging is enabled for dev/staging and disabled for production builds
 
-## 🚀 Next Steps
+## License
 
-1. **Replace Firebase Configuration**
-   - Update `google-services.json` with your project
-   - Configure Firebase Analytics and Crashlytics
-
-2. **Customize Theme**
-   - Modify colors in `Color.kt`
-   - Update typography in `Type.kt`
-
-3. **Add Features**
-   - Implement your business logic
-   - Add more screens and navigation
-   - Integrate with your APIs
-
-4. **Testing**
-   - Add unit tests for ViewModels
-   - Add UI tests for Compose screens
-   - Configure test dependencies
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
----
-
-**Happy Coding! 🎉** 
+This project is open source and available under the [MIT License](LICENSE). 

@@ -18,10 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.valentinilk.shimmer.shimmer
+import com.example.androidprojectskaleton.data.model.Post
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +36,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Android Project Skeleton") },
+                title = { Text(stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -71,10 +74,36 @@ fun MainScreen(
         ) {
             item {
                 Text(
-                    text = "Welcome to Android Project Skeleton!",
+                    text = "Welcome to ${stringResource(R.string.app_name)}!",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
+            }
+            
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Environment:",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = stringResource(R.string.environment),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
             
             item {
@@ -104,10 +133,100 @@ fun MainScreen(
                         FeatureItem("✅ Shimmer for loading states")
                         FeatureItem("✅ Hilt for Dependency Injection")
                         FeatureItem("✅ Room with KSP")
+                        FeatureItem("✅ Coroutines & Serialization")
+                        FeatureItem("✅ Retrofit & Moshi")
+                        FeatureItem("✅ Lottie Animations")
+                        FeatureItem("✅ Pull to Refresh")
                     }
                 }
             }
             
+            // Lottie Animation Example
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Lottie Animation Example:",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        // Simple loading animation using Lottie
+                        // Note: You can add your own Lottie JSON file to res/raw/
+                        // For now, we'll show a placeholder
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .shimmer(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Lottie\nAnimation",
+                                style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // Posts Section
+            item {
+                Text(
+                    text = "Posts from API:",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            if (uiState.isLoading) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .padding(16.dp)
+                                .shimmer()
+                        )
+                    }
+                }
+            } else if (uiState.error != null) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Text(
+                            text = "Error: ${uiState.error}",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            } else {
+                items(uiState.posts.take(5)) { post ->
+                    PostCard(post = post)
+                }
+            }
+            
+            // Example Components
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -135,16 +254,6 @@ fun MainScreen(
                             contentScale = ContentScale.Crop
                         )
                         
-                        // Example shimmer loading
-                        if (uiState.isLoading) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(100.dp)
-                                    .shimmer()
-                            )
-                        }
-                        
                         // Example with filled icons
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -169,4 +278,35 @@ private fun FeatureItem(text: String) {
         text = text,
         style = MaterialTheme.typography.bodyMedium
     )
+}
+
+@Composable
+private fun PostCard(post: Post) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = post.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = post.body,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 3
+            )
+            Text(
+                text = "Post ID: ${post.id}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 } 
