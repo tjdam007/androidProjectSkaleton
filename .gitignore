@@ -118,5 +118,5 @@ GoogleService-Info.plist
 crashlytics.properties
 crashlytics-build.properties 
 # Project exclude paths
-/app/
 /gradle/
+/.kotlin/*
